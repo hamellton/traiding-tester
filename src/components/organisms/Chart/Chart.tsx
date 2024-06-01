@@ -2,20 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ChartCanvas from '../../molecules/ChartCanvas/ChartCanvas';
 import { Bar } from '../../../models/Bar';
 import { DataLoader } from '../../../models/DataLoader';
+import config from '../../../config';
 
-interface ChartProps {
-    dataUrl: string;
-}
-
-const Chart: React.FC<ChartProps> = ({ dataUrl }) => {
+const Chart: React.FC = () => {
     const [bars, setBars] = useState<Bar[]>([]);
     const [scale, setScale] = useState<number>(1);
     const [offset, setOffset] = useState<number>(0);
 
     useEffect(() => {
-        const dataLoader = new DataLoader(dataUrl);
+        const dataLoader = new DataLoader(config.endpoints.eurUsd);
         dataLoader.fetchData().then(setBars);
-    }, [dataUrl]);
+    }, []);
 
     const handleWheel = (event: React.WheelEvent) => {
         setOffset(prevOffset => prevOffset + event.deltaY);

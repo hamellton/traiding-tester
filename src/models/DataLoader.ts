@@ -23,7 +23,6 @@ export class DataLoader {
                 );
             });
         });
-        console.log("🚀 ~ DataLoader ~ constbars:Bar[]=data.flatMap ~ bars:", bars)
         return bars;
     }
 }
