@@ -4,24 +4,23 @@ export const drawBars = (
     context: CanvasRenderingContext2D,
     bars: Bar[],
     scale: number,
-    offset: number
+    offset: { x: number; y: number } | null
 ) => {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     context.strokeStyle = 'black';
     context.fillStyle = 'green';
 
-    // const barWidth = 5;
-    // const padding = 2;
-
     const barWidth = 5 * scale;
     const padding = 2 * scale;
+
+    if (!offset) return;
 
     const maxY = Math.max(...bars.map(bar => Math.max(bar.open, bar.close, bar.high, bar.low)));
     const minY = Math.min(...bars.map(bar => Math.min(bar.open, bar.close, bar.high, bar.low)));
 
     bars.forEach((bar, index) => {
-        const x = (index * (barWidth + padding)) + offset;
+        const x = (index * (barWidth + padding)) + offset.x;
         const yOpen = context.canvas.height - ((bar.open - minY) / (maxY - minY)) * context.canvas.height;
         const yClose = context.canvas.height - ((bar.close - minY) / (maxY - minY)) * context.canvas.height;
         const yHigh = context.canvas.height - ((bar.high - minY) / (maxY - minY)) * context.canvas.height;

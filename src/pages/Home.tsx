@@ -5,7 +5,7 @@ const Home: React.FC = () => {
 
     return (
         <div>
-            <h1>Forex Chart</h1>
+            {/* <h1>Forex Chart</h1> */}
             <Chart />
         </div>
     );
