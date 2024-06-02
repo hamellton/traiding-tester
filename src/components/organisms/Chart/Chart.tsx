@@ -38,20 +38,29 @@ const Chart: React.FC = () => {
 
     const handleWheel = (event: React.WheelEvent) => {
         event.preventDefault();
-        const newScale = scale * (1 - event.deltaY * 0.01);
 
-        const boundingRect = event.currentTarget.getBoundingClientRect();
-        const mouseX = event.clientX - boundingRect.left;
-        const mouseY = event.clientY - boundingRect.top;
+        if (event.shiftKey) {
+            // Горизонтальная прокрутка при удерживании клавиши Shift
+            setOffset(prevOffset => ({ x: prevOffset.x - event.deltaY, y: prevOffset.y }));
+        } else {
+            // Вертикальная прокрутка или увеличение
+            const deltaScale = event.deltaY < 0 ? 1.1 : 0.9;
+            const newScale = scale * deltaScale;
 
-        const offsetX = mouseX - ((mouseX - offset.x) * newScale) / scale;
-        const offsetY = mouseY - ((mouseY - offset.y) * newScale) / scale;
+            const boundingRect = event.currentTarget.getBoundingClientRect();
+            const mouseX = event.clientX - boundingRect.left;
+            const mouseY = event.clientY - boundingRect.top;
 
-        setScale(newScale);
-        setOffset({ x: offsetX, y: offsetY });
+            const offsetX = mouseX - ((mouseX - offset.x) * newScale) / scale;
+            const offsetY = mouseY - ((mouseY - offset.y) * newScale) / scale;
+
+            setScale(newScale);
+            setOffset({ x: offsetX, y: offsetY });
+        }
     };
 
     const updatePriceScaleCursor = (mouseX: number, mouseY: number) => {
+        // Здесь вы можете выполнить какие-либо действия с координатами курсора мыши, если это необходимо
     };
 
     return (
@@ -75,4 +84,3 @@ const Chart: React.FC = () => {
 };
 
 export default Chart;
-
