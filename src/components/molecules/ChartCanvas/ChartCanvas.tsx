@@ -1,107 +1,3 @@
-// // import React, { useRef, useEffect } from 'react';
-// // import { drawBars } from '../../../helpers/canvasHelpers';
-// // import { Bar } from '../../../models/Bar';
-
-// // interface ChartCanvasProps {
-// //     bars: Bar[];
-// //     scale: number;
-// //     offset: { x: number; y: number } | null;
-// //     onWheel: (event: React.WheelEvent) => void;
-// //     onMouseDown: (event: React.MouseEvent) => void;
-// //     onMouseMove: (event: React.MouseEvent) => void;
-// //     onMouseUp: () => void;
-// // }
-
-// // const ChartCanvas: React.FC<ChartCanvasProps> = ({ bars, scale, offset, onWheel, onMouseDown, onMouseMove, onMouseUp }) => {
-// //     const canvasRef = useRef<HTMLCanvasElement>(null);
-
-// //     useEffect(() => {
-// //         const canvas = canvasRef.current;
-// //         if (canvas) {
-// //             const context = canvas.getContext('2d');
-// //             if (context && offset) {
-// //                 drawBars(context, bars, scale, offset);
-// //             }
-// //         }
-// //     }, [bars, scale, offset]);
-
-// //     return (
-// //         <canvas
-// //             ref={canvasRef}
-// //             width={800}
-// //             height={600}
-// //             onWheel={onWheel}
-// //             onMouseDown={onMouseDown}
-// //             onMouseMove={onMouseMove}
-// //             onMouseUp={onMouseUp}
-// //         />
-// //     );
-// // };
-
-// // export default ChartCanvas;
-
-// import React, { useRef, useEffect } from 'react';
-// import { drawBars } from '../../../helpers/canvasHelpers';
-// import { Bar } from '../../../models/Bar';
-
-// interface ChartCanvasProps {
-//     bars: Bar[];
-//     scale: number;
-//     offset: { x: number; y: number } | null;
-//     onWheel: (event: React.WheelEvent) => void;
-//     onMouseDown: (event: React.MouseEvent) => void;
-//     onMouseMove: (event: React.MouseEvent) => void;
-//     onMouseUp: () => void;
-// }
-
-// const ChartCanvas: React.FC<ChartCanvasProps> = ({ bars, scale, offset, onWheel, onMouseDown, onMouseMove, onMouseUp }) => {
-//     const canvasRef = useRef<HTMLCanvasElement>(null);
-
-//     useEffect(() => {
-//         const canvas = canvasRef.current;
-//         if (canvas) {
-//             const context = canvas.getContext('2d');
-//             if (context && offset) {
-//                 drawBars(context, bars, scale, offset);
-//             }
-//         }
-//     }, [bars, scale, offset]);
-
-//     useEffect(() => {
-//         const canvas = canvasRef.current;
-//         if (canvas) {
-//             const handleResize = () => {
-//                 canvas.width = window.innerWidth;
-//                 canvas.height = window.innerHeight;
-//                 const context = canvas.getContext('2d');
-//                 if (context && offset) {
-//                     drawBars(context, bars, scale, offset);
-//                 }
-//             };
-
-//             window.addEventListener('resize', handleResize);
-//             handleResize(); // Set initial size
-
-//             return () => {
-//                 window.removeEventListener('resize', handleResize);
-//             };
-//         }
-//     }, [bars, scale, offset]);
-
-//     return (
-//         <canvas
-//             ref={canvasRef}
-//             onWheel={onWheel}
-//             onMouseDown={onMouseDown}
-//             onMouseMove={onMouseMove}
-//             onMouseUp={onMouseUp}
-//             style={{ width: '100vw', height: '100vh' }}
-//         />
-//     );
-// };
-
-// export default ChartCanvas;
-
 import React, { useRef, useEffect, useState } from 'react';
 import { drawBars } from '../../../helpers/canvasHelpers';
 import { Bar } from '../../../models/Bar';
@@ -114,11 +10,21 @@ interface ChartCanvasProps {
     onMouseDown: (event: React.MouseEvent) => void;
     onMouseMove: (event: React.MouseEvent) => void;
     onMouseUp: () => void;
+    updatePriceScaleCursor: (mouseX: number, mouseY: number) => void;
 }
 
-const ChartCanvas: React.FC<ChartCanvasProps> = ({ bars, scale, offset, onWheel, onMouseDown, onMouseMove, onMouseUp }) => {
+const ChartCanvas: React.FC<ChartCanvasProps> = ({
+    bars,
+    scale,
+    offset,
+    onWheel,
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    updatePriceScaleCursor
+}) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ width: window.innerWidth, height: window.innerHeight });
+    const [dimensions, setDimensions] = useState<{ width: number; height: number }>({ width: window.innerWidth - 60, height: window.innerHeight });
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -133,7 +39,7 @@ const ChartCanvas: React.FC<ChartCanvasProps> = ({ bars, scale, offset, onWheel,
 
     useEffect(() => {
         const handleResize = () => {
-            setDimensions({ width: window.innerWidth, height: window.innerHeight });
+            setDimensions({ width: window.innerWidth - 60, height: window.innerHeight });
         };
 
         window.addEventListener('resize', handleResize);
@@ -144,16 +50,28 @@ const ChartCanvas: React.FC<ChartCanvasProps> = ({ bars, scale, offset, onWheel,
         };
     }, []);
 
+    const handleWheel = (event: React.WheelEvent) => {
+        event.preventDefault();
+        onWheel(event);
+
+        const boundingRect = canvasRef.current?.getBoundingClientRect();
+        if (!boundingRect) return;
+        const mouseX = event.clientX - boundingRect.left;
+        const mouseY = event.clientY - boundingRect.top;
+
+        updatePriceScaleCursor(mouseX, mouseY);
+    };
+
     return (
         <canvas
             ref={canvasRef}
             width={dimensions.width}
             height={dimensions.height}
-            onWheel={onWheel}
+            onWheel={handleWheel}
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
-            style={{ width: '100vw', height: '100vh' }}
+            style={{ display: 'block', width: dimensions.width, height: dimensions.height }}
         />
     );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ChartCanvas from '../../molecules/ChartCanvas/ChartCanvas';
+import PriceScale from '../../molecules/PriceScale/PriceScale';
 import { Bar } from '../../../models/Bar';
 import { DataLoader } from '../../../models/DataLoader';
 import config from '../../../config';
@@ -38,20 +39,40 @@ const Chart: React.FC = () => {
     const handleWheel = (event: React.WheelEvent) => {
         event.preventDefault();
         const newScale = scale * (1 - event.deltaY * 0.01);
+
+        const boundingRect = event.currentTarget.getBoundingClientRect();
+        const mouseX = event.clientX - boundingRect.left;
+        const mouseY = event.clientY - boundingRect.top;
+
+        const offsetX = mouseX - ((mouseX - offset.x) * newScale) / scale;
+        const offsetY = mouseY - ((mouseY - offset.y) * newScale) / scale;
+
         setScale(newScale);
+        setOffset({ x: offsetX, y: offsetY });
+    };
+
+    const updatePriceScaleCursor = (mouseX: number, mouseY: number) => {
     };
 
     return (
-        <ChartCanvas
-            bars={bars}
-            scale={scale}
-            offset={offset}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onWheel={handleWheel}
-        />
+        <div style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+            <ChartCanvas
+                bars={bars}
+                scale={scale}
+                offset={offset}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onWheel={handleWheel}
+                updatePriceScaleCursor={updatePriceScaleCursor}
+            />
+            <PriceScale
+                bars={bars}
+                height={window.innerHeight}
+            />
+        </div>
     );
 };
 
 export default Chart;
+
